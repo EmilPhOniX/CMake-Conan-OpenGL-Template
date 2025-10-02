@@ -2,109 +2,68 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "conan-install",
+            "label": "Prepare build folder",
+            "type": "shell",
+            "command": "rm -rf build && mkdir build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Conan install",
             "type": "shell",
             "command": "conan",
             "args": [
                 "install",
-                ".",
-                "--build=missing",
-                "--profile:build=default",
-                "--profile:host=default",
-                "--output-folder=build"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "silent",
-                "focus": false,
-                "panel": "shared"
-            }
-        },
-        {
-            "label": "cmake-config-generate",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "-S",
-                ".",
-                "-B",
-                "build",
-                "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "group": "build",
-            "dependsOn": "conan-install",
-            "presentation": {
-                "echo": true,
-                "reveal": "silent",
-                "focus": false,
-                "panel": "shared"
-            }
-        },
-        {
-            "label": "cmake-configure",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "-S",
                 "..",
-                "-B",
-                ".",
-                "-DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake",
-                "-DCMAKE_BUILD_TYPE=Debug",
-                "-CMAKE_EXPORT_COMPILE_COMMANDS=ON"
+                "--output-folder=.",
+                "--build=missing"
             ],
             "options": {
                 "cwd": "${workspaceFolder}/build"
             },
-            "group": "build",
-            "dependsOn": "cmake-config-generate",
-            "presentation": {
-                "echo": true,
-                "reveal": "silent",
-                "focus": false,
-                "panel": "shared"
-            }
+            "problemMatcher": [],
+            "dependsOn": "Prepare build folder"
         },
         {
-            "label": "cmake-build",
+            "label": "CMake configure",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "..",
+                "-DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake",
+                "-DCMAKE_BUILD_TYPE=Release",
+                "-DCMAKE_OSX_SYSROOT=${env:SDKROOT}"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/build"
+            },
+            "problemMatcher": [],
+            "dependsOn": "Conan install"
+        },
+        {
+            "label": "CMake build",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "--build",
                 ".",
                 "--config",
-                "Debug"
+                "Release"
             ],
             "options": {
                 "cwd": "${workspaceFolder}/build"
             },
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "dependsOn": "cmake-configure",
-            "presentation": {
-                "echo": true,
-                "reveal": "silent",
-                "focus": false,
-                "panel": "shared"
-            },
-            "problemMatcher": "$gcc"
+            "problemMatcher": [],
+            "dependsOn": "CMake configure"
         },
         {
             "label": "setup-and-build",
             "dependsOn": [
-                "cmake-build"
+                "CMake build"
             ],
-            "group": "build",
-            "dependsOrder": "sequence"
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         }
     ]
 }
