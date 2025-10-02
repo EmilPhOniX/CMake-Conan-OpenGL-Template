@@ -2,45 +2,75 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Prepare build folder",
+            "label": "Check and prepare build folder",
             "type": "shell",
-            "command": "rm -rf build && mkdir build",
+            "command": "if [ ! -d build ]; then mkdir build; fi",
             "problemMatcher": []
         },
         {
-            "label": "Conan install",
+            "label": "Conan install (Debug)",
             "type": "shell",
-            "command": "conan",
+            "command": "if [ ! -f conan_toolchain.cmake ] || [ ! -f conanbuildinfo.txt ]; then conan install .. --output-folder=. --build=missing -s build_type=Debug; fi",
+            "options": {
+                "cwd": "${workspaceFolder}/build"
+            },
+            "problemMatcher": [],
+            "dependsOn": "Check and prepare build folder"
+        },
+        {
+            "label": "CMake configure (Debug)",
+            "type": "shell",
+            "command": "if [ ! -f CMakeCache.txt ]; then cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_OSX_SYSROOT=${SDKROOT}; else cmake .. -DCMAKE_BUILD_TYPE=Debug; fi",
+            "options": {
+                "cwd": "${workspaceFolder}/build"
+            },
+            "problemMatcher": [],
+            "dependsOn": "Conan install (Debug)"
+        },
+        {
+            "label": "CMake build (Debug)",
+            "type": "shell",
+            "command": "cmake",
             "args": [
-                "install",
-                "..",
-                "--output-folder=.",
-                "--build=missing"
+                "--build",
+                ".",
+                "--config",
+                "Debug"
             ],
             "options": {
                 "cwd": "${workspaceFolder}/build"
             },
             "problemMatcher": [],
-            "dependsOn": "Prepare build folder"
+            "dependsOn": "CMake configure (Debug)"
         },
         {
-            "label": "CMake configure",
+            "label": "Conan install (Release)",
+            "type": "shell",
+            "command": "conan install .. --output-folder=. --build=missing -s build_type=Release",
+            "options": {
+                "cwd": "${workspaceFolder}/build"
+            },
+            "problemMatcher": [],
+            "dependsOn": "Check and prepare build folder"
+        },
+        {
+            "label": "CMake configure (Release)",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "..",
                 "-DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake",
                 "-DCMAKE_BUILD_TYPE=Release",
-                "-DCMAKE_OSX_SYSROOT=${env:SDKROOT}"
+                "-DCMAKE_OSX_SYSROOT=${SDKROOT}"
             ],
             "options": {
                 "cwd": "${workspaceFolder}/build"
             },
             "problemMatcher": [],
-            "dependsOn": "Conan install"
+            "dependsOn": "Conan install (Release)"
         },
         {
-            "label": "CMake build",
+            "label": "CMake build (Release)",
             "type": "shell",
             "command": "cmake",
             "args": [
@@ -53,17 +83,52 @@
                 "cwd": "${workspaceFolder}/build"
             },
             "problemMatcher": [],
-            "dependsOn": "CMake configure"
+            "dependsOn": "CMake configure (Release)"
+        },
+        {
+            "label": "Clean build folder",
+            "type": "shell",
+            "command": "rm -rf build && mkdir build",
+            "problemMatcher": []
         },
         {
             "label": "setup-and-build",
             "dependsOn": [
-                "CMake build"
+                "CMake build (Debug)"
             ],
             "group": {
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "label": "setup-and-build-release",
+            "dependsOn": [
+                "CMake build (Release)"
+            ],
+            "group": "build"
+        },
+        {
+            "label": "Full rebuild (Debug)",
+            "dependsOn": [
+                "Clean build folder",
+                "Conan install (Debug)",
+                "CMake configure (Debug)",
+                "CMake build (Debug)"
+            ],
+            "dependsOrder": "sequence",
+            "group": "build"
+        },
+        {
+            "label": "Full rebuild (Release)",
+            "dependsOn": [
+                "Clean build folder",
+                "Conan install (Release)",
+                "CMake configure (Release)",
+                "CMake build (Release)"
+            ],
+            "dependsOrder": "sequence",
+            "group": "build"
         }
     ]
 }
