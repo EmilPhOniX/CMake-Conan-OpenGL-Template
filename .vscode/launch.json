@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug OpenGL (Auto Setup)",
+            "name": "Debug (Auto Setup)",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/ProjectName",
@@ -19,10 +19,21 @@
                     "text": "-enable-pretty-printing",
                     "ignoreFailures": true
                 }
-            ]
+            ],
+            "osx": {
+                "MIMode": "lldb"
+            },
+            "linux": {
+                "MIMode": "gdb"
+            },
+            "windows": {
+                "type": "cppvsdbg",
+                "program": "${workspaceFolder}/build/Debug/ProjectName.exe",
+                "console": "integratedTerminal"
+            }
         },
         {
-            "name": "Debug OpenGL (Quick Launch)",
+            "name": "Debug (Quick Launch)",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/ProjectName",
@@ -38,10 +49,21 @@
                     "text": "-enable-pretty-printing",
                     "ignoreFailures": true
                 }
-            ]
+            ],
+            "osx": {
+                "MIMode": "lldb"
+            },
+            "linux": {
+                "MIMode": "gdb"
+            },
+            "windows": {
+                "type": "cppvsdbg",
+                "program": "${workspaceFolder}/build/Debug/ProjectName.exe",
+                "console": "integratedTerminal"
+            }
         },
         {
-            "name": "Debug OpenGL (Release Mode)",
+            "name": "Release (Auto Setup)",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/ProjectName",
@@ -51,7 +73,18 @@
             "environment": [],
             "externalConsole": false,
             "MIMode": "lldb",
-            "preLaunchTask": "setup-and-build-release"
+            "preLaunchTask": "setup-and-build-release",
+            "osx": {
+                "MIMode": "lldb"
+            },
+            "linux": {
+                "MIMode": "gdb"
+            },
+            "windows": {
+                "type": "cppvsdbg",
+                "program": "${workspaceFolder}/build/Release/ProjectName.exe",
+                "console": "integratedTerminal"
+            }
         }
     ]
 }

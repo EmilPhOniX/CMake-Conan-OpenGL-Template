@@ -5,7 +5,14 @@
             "label": "Check and prepare build folder",
             "type": "shell",
             "command": "if [ ! -d build ]; then mkdir build; fi",
-            "problemMatcher": []
+            "problemMatcher": [],
+            "windows": {
+                "command": "cmd",
+                "args": [
+                    "/c",
+                    "if not exist build mkdir build"
+                ]
+            }
         },
         {
             "label": "Conan install (Debug)",
@@ -15,7 +22,14 @@
                 "cwd": "${workspaceFolder}/build"
             },
             "problemMatcher": [],
-            "dependsOn": "Check and prepare build folder"
+            "dependsOn": "Check and prepare build folder",
+            "windows": {
+                "command": "cmd",
+                "args": [
+                    "/c",
+                    "if not exist conan_toolchain.cmake (conan install .. --output-folder=. --build=missing -s build_type=Debug) else if not exist conanbuildinfo.txt (conan install .. --output-folder=. --build=missing -s build_type=Debug)"
+                ]
+            }
         },
         {
             "label": "CMake configure (Debug)",
@@ -25,7 +39,14 @@
                 "cwd": "${workspaceFolder}/build"
             },
             "problemMatcher": [],
-            "dependsOn": "Conan install (Debug)"
+            "dependsOn": "Conan install (Debug)",
+            "windows": {
+                "command": "cmd",
+                "args": [
+                    "/c",
+                    "if not exist CMakeCache.txt (cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Debug) else (cmake .. -DCMAKE_BUILD_TYPE=Debug)"
+                ]
+            }
         },
         {
             "label": "CMake build (Debug)",
@@ -60,14 +81,29 @@
             "args": [
                 "..",
                 "-DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake",
-                "-DCMAKE_BUILD_TYPE=Release",
-                "-DCMAKE_OSX_SYSROOT=${SDKROOT}"
+                "-DCMAKE_BUILD_TYPE=Release"
             ],
             "options": {
                 "cwd": "${workspaceFolder}/build"
             },
             "problemMatcher": [],
-            "dependsOn": "Conan install (Release)"
+            "dependsOn": "Conan install (Release)",
+            "linux": {
+                "args": [
+                    "..",
+                    "-DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake",
+                    "-DCMAKE_BUILD_TYPE=Release",
+                    "-DCMAKE_OSX_SYSROOT=${SDKROOT}"
+                ]
+            },
+            "osx": {
+                "args": [
+                    "..",
+                    "-DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake",
+                    "-DCMAKE_BUILD_TYPE=Release",
+                    "-DCMAKE_OSX_SYSROOT=${SDKROOT}"
+                ]
+            }
         },
         {
             "label": "CMake build (Release)",
@@ -89,7 +125,14 @@
             "label": "Clean build folder",
             "type": "shell",
             "command": "rm -rf build && mkdir build",
-            "problemMatcher": []
+            "problemMatcher": [],
+            "windows": {
+                "command": "cmd",
+                "args": [
+                    "/c",
+                    "if exist build rmdir /s /q build && mkdir build"
+                ]
+            }
         },
         {
             "label": "setup-and-build",
